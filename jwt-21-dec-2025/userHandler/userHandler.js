@@ -2,6 +2,8 @@ const express = require("express");
 const { default: mongoose } = require("mongoose");
 const userSchema = require("../schema/userSchema");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const checkLogIn = require("../middleware/checkLogIn");
 const router = express.Router();
 
 const User = new mongoose.model("User_21_dec_2025", userSchema);
@@ -38,15 +40,25 @@ router.post("/login", async (req, res) => {
   try {
     const user = await User.find({ username: req.body.username });
     if (user && user.length > 0) {
-      const isValidPassword = bcrypt.compare(
-        user[0].password,
-        req.body.password
+      const isValidPassword = await bcrypt.compare(
+        req.body.password,
+        user[0].password
       );
       if (isValidPassword) {
-        res.status(200).send(`Log in successful-welcome ${user[0].username}`);
+        const token = jwt.sign(
+          { username: user[0].username, id: user[0]._id },
+          process.env.JWT_SECRET,
+          { expiresIn: "1hr" }
+        );
+        res.status(200).json({
+          access_token: token,
+          message: `Log in successful. welcome ${user[0].username}`,
+        });
       } else {
         res.status(401).send("Authentication failed.");
       }
+    } else {
+      res.status(401).send("Authentication failed.");
     }
   } catch (error) {
     console.log(error);
@@ -56,9 +68,17 @@ router.post("/login", async (req, res) => {
 
 // login user with jwt
 
-router.get("/signup", async (req, res) => {
+router.get("/jwt-auth", checkLogIn, async (req, res) => {
   try {
-  } catch (error) {}
+    const user = {
+      username: req.username,
+      userId: req.userid,
+    };
+    res.send(user);
+  } catch (error) {
+    console.log(error);
+    res.status(401).send("Authentication failed.");
+  }
 });
 
 module.exports = router;
