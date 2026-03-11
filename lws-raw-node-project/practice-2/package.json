@@ -1,0 +1,17 @@
+{
+  "name": "practice-2",
+  "version": "1.0.0",
+  "description": "practice lws raw node project",
+  "license": "ISC",
+  "author": "montasir azad",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "start": "SET \"NODE_ENV=staging\" && nodemon index",
+    "development": "SET \"NODE_ENV=development\" && nodemon index",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "node": "^22.22.1"
+  }
+}
