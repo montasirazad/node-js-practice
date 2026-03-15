@@ -1,20 +1,20 @@
-const fs = require("fs");
 const path = require("path");
+const fs = require("fs");
 const lib = {};
 
 lib.baseDir = path.join(__dirname, "../.data/");
 
 lib.create = (dir, file, data, callback) => {
   fs.open(`${lib.baseDir + dir}/${file}.json`, "wx", (err, fileDescriptor) => {
+    const stringData = JSON.stringify(data);
     if (!err && fileDescriptor) {
-      const stringData = JSON.stringify(data);
       fs.writeFile(fileDescriptor, stringData, (err) => {
         if (!err) {
           fs.close(fileDescriptor, (err) => {
             if (!err) {
-              callback(false);
+              callback(`${false}--Data saved successfully`);
             } else {
-              callback("error closing file");
+              callback("Error closing file");
             }
           });
         } else {
@@ -22,7 +22,7 @@ lib.create = (dir, file, data, callback) => {
         }
       });
     } else {
-      callback("Error opening file or file may exists");
+      callback("Error opening file or file may already exists");
     }
   });
 };
@@ -35,8 +35,8 @@ lib.read = (dir, file, callback) => {
 
 lib.update = (dir, file, data, callback) => {
   fs.open(`${lib.baseDir + dir}/${file}.json`, "r+", (err, fileDescriptor) => {
+    const stringData = JSON.stringify(data);
     if (!err && fileDescriptor) {
-      const stringData = JSON.stringify(data);
       fs.ftruncate(fileDescriptor, (err) => {
         if (!err) {
           fs.writeFile(fileDescriptor, stringData, (err) => {
@@ -45,19 +45,29 @@ lib.update = (dir, file, data, callback) => {
                 if (!err) {
                   callback(false);
                 } else {
-                  callback(err, "error closing file");
+                  callback("Error closing file");
                 }
               });
             } else {
-              callback("error closing file");
+              callback("error writing file");
             }
           });
         } else {
-          callback("error truncating file");
+          callback("Error truncating file");
         }
       });
     } else {
-      callback("Error updating file may not exist");
+      callback("Error opening file");
+    }
+  });
+};
+
+lib.delete = (dir, file, callback) => {
+  fs.unlink(`${lib.baseDir + dir}/${file}.json`, (err) => {
+    if (!err) {
+      callback("File deleted successfully");
+    } else {
+      callback("Error deleting file");
     }
   });
 };
