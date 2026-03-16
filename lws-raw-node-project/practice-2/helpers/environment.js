@@ -3,11 +3,13 @@ const environments = {};
 environments.staging = {
   port: 3000,
   envName: "staging",
+  secretKey: "staging_key",
 };
 
 environments.development = {
   port: 5000,
   envName: "development",
+  secretKey: "production_key",
 };
 
 const currentEnvironment =
