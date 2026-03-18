@@ -54,7 +54,7 @@ handler._users.post = (requestProperties, callback) => {
           password: hash(password),
           tosAgreement,
         };
-        data.create("users", "phone", userObject, (err) => {
+        data.create("users", phone, userObject, (err) => {
           if (!err) {
             callback(200, {
               message: "user created successfully",
