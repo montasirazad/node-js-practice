@@ -95,7 +95,6 @@ handler._users.get = (requestProperties, callback) => {
   }
 };
 handler._users.put = (requestProperties, callback) => {
-  console.log(requestProperties.body);
   const firstName =
     typeof requestProperties.body.firstName === "string" &&
     requestProperties.body.firstName.trim().length > 0
@@ -118,9 +117,7 @@ handler._users.put = (requestProperties, callback) => {
       ? requestProperties.body.password
       : false;
   if (phone) {
-    // console.log(phone);
     if (firstName || lastName || password) {
-      console.log(200);
       data.read("users", phone, (err, uData) => {
         const userData = { ...parseJson(uData) };
         if (!err && userData) {
@@ -133,7 +130,7 @@ handler._users.put = (requestProperties, callback) => {
           if (password) {
             userData.password = hash(password);
           }
-          console.log("user data: ", userData);
+
           data.update("users", phone, userData, (err) => {
             if (!err) {
               callback(200, {
@@ -162,8 +159,6 @@ handler._users.put = (requestProperties, callback) => {
     });
   }
 };
-handler._users.delete = (requestProperties, callback) => {
-  
-};
+handler._users.delete = (requestProperties, callback) => {};
 
 module.exports = handler;
