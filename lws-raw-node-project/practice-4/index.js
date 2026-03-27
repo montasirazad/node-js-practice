@@ -1,12 +1,8 @@
 const http = require("http");
 const environment = require("./helpers/environments");
 const { handlerReqRes } = require("./helpers/handleReqRes");
-const data = require("./lib/lib");
-const app = {};
 
-data.delete("test", "id_1", (err) => {
-  console.log(err);
-});
+const app = {};
 
 app.handleReqRes = handlerReqRes;
 const server = http.createServer(app.handleReqRes);

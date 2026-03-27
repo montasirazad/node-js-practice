@@ -12,7 +12,7 @@ lib.create = (dir, file, data, callback) => {
         if (!err) {
           fs.close(fileDescriptor, (err) => {
             if (!err) {
-              callback(`${false}--Data saved successfully`);
+              callback(false);
             } else {
               callback("Error closing file");
             }

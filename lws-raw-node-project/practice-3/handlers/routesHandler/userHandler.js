@@ -159,6 +159,37 @@ handler._users.put = (requestProperties, callback) => {
     });
   }
 };
-handler._users.delete = (requestProperties, callback) => {};
+handler._users.delete = (requestProperties, callback) => {
+  const phone =
+    typeof requestProperties.queryStringObject.phone === "string" &&
+    requestProperties.queryStringObject.phone.trim().length === 11
+      ? requestProperties.queryStringObject.phone
+      : false;
+  if (phone) {
+    data.read("users", phone, (err, userData) => {
+      if (!err && userData) {
+        data.delete("users", phone, (err) => {
+          if (!err) {
+            callback(200, {
+              message: "user was deleted successfully.",
+            });
+          } else {
+            callback(500, {
+              error: "There was a server side error.",
+            });
+          }
+        });
+      } else {
+        callback(500, {
+          error: "There was a server side error.",
+        });
+      }
+    });
+  } else {
+    callback(400, {
+      error: "There was a problem in your request.",
+    });
+  }
+};
 
 module.exports = handler;
