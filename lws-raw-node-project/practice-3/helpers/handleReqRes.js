@@ -27,7 +27,7 @@ handler.handleReqRes = (req, res) => {
   const chosenHandler = routes[trimmedPath]
     ? routes[trimmedPath]
     : notFoundHandler;
-    
+
   const decoder = new StringDecoder("utf-8");
   let realData = "";
 
@@ -37,11 +37,8 @@ handler.handleReqRes = (req, res) => {
 
   req.on("end", () => {
     realData += decoder.end();
-    requestProperties.body =  JSON.parse(realData)
-
+    requestProperties.body = parseJson(realData);
     chosenHandler(requestProperties, (statusCode, payload) => {
-       console.log("requestProperties.body", requestProperties.body);
-    console.log("realData", realData);
       typeof statusCode === "number" ? statusCode : 500;
       typeof payload === "object" ? payload : {};
       const payloadString = JSON.stringify(payload);
