@@ -17,24 +17,24 @@ handler.tokenHandler = (requestProperties, callback) => {
 };
 
 handler._token.post = (requestProperties, callback) => {
-  const phone =
-    typeof requestProperties.body.phone === "string" &&
-    requestProperties.body.phone.trim().length === 11
-      ? requestProperties.body.phone
+  const id =
+    typeof requestProperties.body.id === "string" &&
+    requestProperties.body.id.trim().length === 11
+      ? requestProperties.body.id
       : false;
   const password =
     typeof requestProperties.body.password === "string" &&
     requestProperties.body.password.trim().length > 0
       ? requestProperties.body.password
       : false;
-  console.log(phone);
-  if (phone && password) {
-    data.read("users", phone, (err, userData) => {
+  console.log(id);
+  if (id && password) {
+    data.read("tokens", id, (err, tokenData) => {
       let hashedPassword = hash(password);
-      if (hashedPassword === parseJson(userData).password) {
+      if (hashedPassword === parseJson(tokenData).password) {
         let tokenId = createRandomString(20);
-        let expires = Date.now() * 60 * 60 * 1000;
-        const tokenObject = { phone, id: tokenId, expires };
+        let expires = Date.now() + 60 * 60 * 1000;
+        const tokenObject = { id, id: tokenId, expires };
         data.create("tokens", tokenId, tokenObject, (err) => {
           if (!err) {
             callback(200, tokenObject);
@@ -54,8 +54,116 @@ handler._token.post = (requestProperties, callback) => {
     });
   }
 };
-handler._token.get = (requestProperties, callback) => {};
-handler._token.put = (requestProperties, callback) => {};
-handler._token.delete = (requestProperties, callback) => {};
+handler._token.get = (requestProperties, callback) => {
+  const id =
+    typeof requestProperties.queryStringObject.id === "string" &&
+    requestProperties.queryStringObject.id.trim().length === 20
+      ? requestProperties.queryStringObject.id
+      : false;
+
+  if (id) {
+    data.read("tokens", id, (err, tokenData) => {
+      if (!err && tokenData) {
+        callback(200, parseJson(tokenData));
+      } else {
+        callback(404, {
+          error: "Requested token not found.",
+        });
+      }
+    });
+  } else {
+    callback(404, { error: "Requested token not found." });
+  }
+};
+
+handler._token.put = (requestProperties, callback) => {
+  const id =
+    typeof requestProperties.body.id === "string" &&
+    requestProperties.body.id.trim().length === 20
+      ? requestProperties.body.id
+      : false;
+
+  const extend =
+    typeof requestProperties.body.extend === "boolean" &&
+    requestProperties.body.extend === true
+      ? true
+      : false;
+
+  if (id && extend) {
+    data.read("tokens", id, (err, tokenData) => {
+      let tokenObject = parseJson(tokenData);
+      console.log("tokenObject", tokenObject);
+      if (tokenObject.expires > Date.now()) {
+        tokenObject.expires = Date.now() + 60 * 60 * 1000;
+        data.update("tokens", id, tokenObject, (err) => {
+          if (!err) {
+            callback(200);
+          } else {
+            callback(500, {
+              error: "Server side error.",
+            });
+          }
+        });
+      } else {
+        callback(400, {
+          error: "Token expired.",
+        });
+      }
+    });
+  } else {
+    callback(400, {
+      error: "There is a problem in request.",
+    });
+  }
+};
+handler._token.delete = (requestProperties, callback) => {
+  const id =
+    typeof requestProperties.queryStringObject.id === "string" &&
+    requestProperties.queryStringObject.id.trim().length === 20
+      ? requestProperties.queryStringObject.id
+      : false;
+  if (id) {
+    data.read("tokens", id, (err, tokenData) => {
+      if (!err && tokenData) {
+        data.delete("tokens", id, (err) => {
+          if (!err) {
+            callback(200, {
+              message: "Token was deleted successfully.",
+            });
+          } else {
+            callback(500, {
+              error: "There was a server side error.",
+            });
+          }
+        });
+      } else {
+        callback(500, {
+          error: "There was a server side error.",
+        });
+      }
+    });
+  } else {
+    callback(400, {
+      error: "There was a problem in your request.",
+    });
+  }
+};
+
+handler._token.verify = (id, phone, callback) => {
+  data.read("tokens", id, (err, tokenData) => {
+    if (!err && tokenData) {
+      if (
+        parseJson(tokenData).phone === phone &&
+        parseJson(tokenData).expires > Date.now()
+      ) {
+        callback(true);
+      } else {
+        callback(false);
+      }
+    } else {
+      callback(false);
+    }
+  });
+};
 
 module.exports = handler;
