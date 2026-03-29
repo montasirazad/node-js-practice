@@ -7,7 +7,7 @@ utilities.parsedJson = (jsonString) => {
     output = JSON.parse(jsonString);
   } catch (error) {
     output = {};
-    console.log(error);
+    //console.log(error);
   }
   return output;
 };
@@ -21,6 +21,25 @@ utilities.hash = (password) => {
     return hash;
   }
   return false;
+};
+
+utilities.randomString = (strLength) => {
+  let length =
+    typeof strLength === "number" && strLength > 0 ? strLength : false;
+
+  if (length) {
+    let output = "";
+    let possibleCharacter = "abcdefghijklmnopqrstuvwxyz01234567890";
+    for (let i = 1; i <= length; i++) {
+      let randomCharacter = possibleCharacter.charAt(
+        Math.floor(Math.random() * possibleCharacter.length),
+      );
+      output += randomCharacter;
+    }
+    return output;
+  } else {
+    return false;
+  }
 };
 
 module.exports = utilities;

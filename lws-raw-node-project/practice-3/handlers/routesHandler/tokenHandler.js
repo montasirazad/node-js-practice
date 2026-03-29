@@ -15,7 +15,7 @@ handler.tokenHandler = (requestProperties, callback) => {
     callback(405);
   }
 };
-
+// wrong code -> handler._token.post
 handler._token.post = (requestProperties, callback) => {
   const id =
     typeof requestProperties.body.id === "string" &&
@@ -54,6 +54,8 @@ handler._token.post = (requestProperties, callback) => {
     });
   }
 };
+
+ 
 handler._token.get = (requestProperties, callback) => {
   const id =
     typeof requestProperties.queryStringObject.id === "string" &&

@@ -1,10 +1,9 @@
 const url = require("url");
 const routes = require("../routes");
-const {
-  notFoundHandler,
-} = require("../handlers/routeHandlers/notFoundHandler");
+
 const { StringDecoder } = require("string_decoder");
 const { parsedJson } = require("./utilities");
+const { notFoundHandler } = require("../handlers/notFoundHandler");
 const handler = {};
 
 handler.handlerReqRes = (req, res) => {
@@ -12,7 +11,7 @@ handler.handlerReqRes = (req, res) => {
   const path = parsedUrl.pathname;
   const method = req.method.toLowerCase();
   const trimmedPath = path.replace(/^\/+|\/+$/g, "");
-  const requestObject = parsedUrl.query;
+  const queryStringObject = parsedUrl.query;
   const headerObject = req.headers;
 
   const requestProperties = {
@@ -20,7 +19,7 @@ handler.handlerReqRes = (req, res) => {
     path,
     method,
     trimmedPath,
-    requestObject,
+    queryStringObject,
     headerObject,
   };
   const chosenHandler = routes[trimmedPath]
