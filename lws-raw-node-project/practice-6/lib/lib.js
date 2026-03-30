@@ -13,7 +13,7 @@ lib.create = (dir, file, data, callback) => {
         if (!err) {
           fs.close(fileDescriptor, (err) => {
             if (!err) {
-              callback(`Error:${false}-${file} created successfully`);
+              callback(false);
             } else {
               callback("error closing file");
             }
@@ -48,7 +48,7 @@ lib.update = (dir, file, data, callback) => {
             if (!err) {
               fs.close(fileDescriptor, (err) => {
                 if (!err) {
-                  callback("file updated successfully.");
+                  callback(false);
                 } else {
                   callback("Server side error:error closing file");
                 }
@@ -70,7 +70,7 @@ lib.update = (dir, file, data, callback) => {
 lib.delete = (dir, file, callback) => {
   fs.unlink(`${lib.baseDir + dir}/${file}.json`, (err) => {
     if (!err) {
-      callback(`${file} deleted successfully./n Error:false`);
+      callback(false);
     } else {
       callback("Error deleting file/file not found");
     }

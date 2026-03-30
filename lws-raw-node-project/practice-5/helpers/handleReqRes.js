@@ -32,7 +32,7 @@ handler.handleReqRes = (req, res) => {
   req.on("end", () => {
     realData += decoder.end();
     requestProperties.body = parseJson(realData);
-    console.log(requestProperties.body);
+    // console.log(requestProperties.body);
     chosenHandler(requestProperties, (statusCode, payload) => {
       typeof statusCode === "string" ? statusCode : 500;
       typeof payload === "object" ? payload : {};

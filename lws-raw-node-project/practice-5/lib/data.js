@@ -30,7 +30,7 @@ lib.create = (dir, file, data, callback) => {
 lib.read = (dir, file, callback) => {
   fs.readFile(`${lib.baseDir + dir}/${file}.json`, "utf-8", (err, data) => {
     if (!err) {
-      console.log(data);
+      callback(false, data);
     } else {
       callback("Error reading fille");
     }
