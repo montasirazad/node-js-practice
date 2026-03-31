@@ -1,5 +1,6 @@
 const { hash, parsedJson } = require("../helpers/utilities");
 const data = require("../lib/lib");
+const tokenHandler = require("../handlers/tokenHandler");
 const handler = {};
 handler._user = {};
 handler.userHandler = (requestProperties, callback) => {
@@ -80,15 +81,25 @@ handler._user.get = (requestProperties, callback) => {
       ? requestProperties.queryStringObject.phone
       : false;
   if (phone) {
-    data.read("users", phone, (err, user) => {
-      const userData = { ...parsedJson(user) };
-      if (!err && userData) {
-        delete userData.password;
-        callback(200, userData);
-      } else {
-        callback(404, {
-          err: "Requested user not found.",
+    let token =
+      typeof requestProperties.headerObject.token === "string"
+        ? requestProperties.headerObject.token
+        : false;
+    tokenHandler._token.verify(token, phone, (tokenId) => {
+      if (tokenId) {
+        data.read("users", phone, (err, user) => {
+          const userData = { ...parsedJson(user) };
+          if (!err && userData) {
+            delete userData.password;
+            callback(200, userData);
+          } else {
+            callback(404, {
+              err: "Requested user not found.",
+            });
+          }
         });
+      } else {
+        callback(403, { error: "Authentication failed." });
       }
     });
   } else {
@@ -122,28 +133,38 @@ handler._user.put = (requestProperties, callback) => {
 
   if (phone) {
     if (firstName || lastName || password) {
-      data.read("users", phone, (err, uData) => {
-        const userData = { ...parsedJson(uData) };
-        if (firstName) {
-          userData.firstName = firstName;
-        }
-        if (lastName) {
-          userData.lastName = lastName;
-        }
-        if (password) {
-          userData.password = password;
-        }
-        data.update("users", phone, userData, (err) => {
-          if (!err) {
-            callback(200, {
-              msg: "User data updated successfully.",
+      let token =
+        typeof requestProperties.headerObject.token === "string"
+          ? requestProperties.headerObject.token
+          : false;
+      tokenHandler._token.verify(token, phone, (tokenId) => {
+        if (tokenId) {
+          data.read("users", phone, (err, uData) => {
+            const userData = { ...parsedJson(uData) };
+            if (firstName) {
+              userData.firstName = firstName;
+            }
+            if (lastName) {
+              userData.lastName = lastName;
+            }
+            if (password) {
+              userData.password = password;
+            }
+            data.update("users", phone, userData, (err) => {
+              if (!err) {
+                callback(200, {
+                  msg: "User data updated successfully.",
+                });
+              } else {
+                callback(500, {
+                  error: "Internal server error.",
+                });
+              }
             });
-          } else {
-            callback(500, {
-              error: "Internal server error.",
-            });
-          }
-        });
+          });
+        } else {
+          callback(403, { error: "Authentication failed." });
+        }
       });
     } else {
       callback(400, {
@@ -163,23 +184,33 @@ handler._user.delete = (requestProperties, callback) => {
       ? requestProperties.queryStringObject.phone
       : false;
   if (phone) {
-    data.read("users", phone, (err, user) => {
-      if (!err && user) {
-        data.delete("users", phone, (err) => {
-          if (!err) {
-            callback(200, {
-              msg: "user deleted successfully.",
+    let token =
+      typeof requestProperties.headerObject.token === "string"
+        ? requestProperties.headerObject.token
+        : false;
+    tokenHandler._token.verify(token, phone, (tokenId) => {
+      if (tokenId) {
+        data.read("users", phone, (err, user) => {
+          if (!err && user) {
+            data.delete("users", phone, (err) => {
+              if (!err) {
+                callback(200, {
+                  msg: "user deleted successfully.",
+                });
+              } else {
+                callback(500, {
+                  error: "Internal server error.",
+                });
+              }
             });
           } else {
             callback(500, {
-              error: "Internal server error.",
+              error: "User not found.",
             });
           }
         });
       } else {
-        callback(500, {
-          error: "User not found.",
-        });
+        callback(403, { error: "Authentication failed." });
       }
     });
   } else {
