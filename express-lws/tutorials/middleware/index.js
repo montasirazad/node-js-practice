@@ -20,12 +20,15 @@ const express = require("express");
 const app = express();
 const port = 5000;
 
-const myMiddleware = (req, res, next) => {
-  console.log("i am logging.");
+const logger = (req, res, next) => {
+  console.log(
+    `${new Date(Date.now()).toLocaleString()} - ${req.method} - ${req.originalUrl} - ${req.protocol} - ${req.ip}`,
+  );
   next();
+  // if anything is put in next() it would be considered as error message. Ex: next('There is an error')
 };
 
-app.use(myMiddleware);
+app.use(logger);
 app.get("/about", (req, res) => {
   res.send("About page");
 });
