@@ -25,7 +25,8 @@ const logger = (req, res, next) => {
     `${new Date(Date.now()).toLocaleString()} - ${req.method} - ${req.originalUrl} - ${req.protocol} - ${req.ip}`,
   );
   next();
-  // if anything is put in next() it would be considered as error message. Ex: next('There is an error')
+  // if anything is passed in next() it would be considered as error message.
+  //  Ex: next('There is an error')
 };
 
 app.use(logger);
