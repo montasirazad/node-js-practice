@@ -5,13 +5,19 @@ const app = express();
 app.use(cookieParser());
 const adminRoute = express.Router();
 app.use("/admin", adminRoute);
+
 app.get("/user/:ppl", (req, res) => {
+  console.log(req.originalUrl);
+  console.log(req.url);
+  console.log(req.path);
   console.log(req.cookies);
   res.send("Req object");
 });
 
 adminRoute.get("/dashboard", (req, res) => {
-  console.log(req.ip);
+  console.log(req.originalUrl);
+  console.log(req.url);
+  console.log('path :',req.path);
   res.send("we are in admin route");
 });
 app.listen(port, () => {
